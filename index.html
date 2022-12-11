@@ -56,6 +56,7 @@
         var scene = null;
         var sceneToRender = null;
         var assets_folder ="./assets/"
+        var zaza_sound_playing = false
         var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
         //END OF GLOBAL VARIABLES
 
@@ -71,14 +72,6 @@
             addModels(scene, addCollision)
 
             
-    // Our built-in 'sphere' shape.
-    // var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2, segments: 32}, scene);
-
-    // Move the sphere upward 1/2 its height
-    // sphere.position.y = 1;
-
-    // Our built-in 'ground' shape.
-    // var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 6, height: 6}, scene);
 
     
     return scene;
@@ -86,6 +79,44 @@
 };
 
 //UTILITY FUNCTIONS I CREATED TO SEPARATE THE CODE
+        function getSound(fileName,scene){
+            /**ASSUMES SOUND FILE IS STORED DIRECTLY IN ROOT OF ASSETS FOLDER
+             */
+            var sound = new BABYLON.Sound(fileName,assets_folder+fileName+'.mp3', scene, null, {   
+                loop: true,
+  autoplay: false
+        });
+       
+        return sound
+        }
+        function addToggleSoundOnMeshClick(scene,meshName,soundFileName){
+            //get mesh
+            sound = getSound(soundFileName,scene);
+            let mesh = scene.getMeshByName(meshName)
+            mesh.actionManager = new BABYLON.ActionManager(scene);
+            mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+            {
+                trigger: BABYLON.ActionManager.OnPickTrigger
+            },
+            () => {
+                BABYLON.Engine.audioEngine.audioContext?.resume();
+                zaza_sound_playing = !zaza_sound_playing;
+                zaza_sound_playing ? sound.play() : sound.pause();
+                console.log(zaza_sound_playing ? 'Playing' : 'Paused');
+            }
+            ));
+            // mesh.actionManager = new ActionManager(scene);
+            // mesh.actionManager.registerAction(
+            //     new ExecuteCodeAction(
+            //     ActionManager.OnPickTrigger, function (ev) {
+            //         console.log('sphere clicked', ev);
+            //     }
+            //     )
+            // );
+
+           
+            //sound.play()
+        }
         function createCamera(scene, canvas){
                // This creates and positions a free camera (non-mesh)
             var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);  
@@ -103,16 +134,15 @@
 
         }
         function checkCollisions(scene,name, checkCollision){
-
              let mesh = scene.getMeshByName(name)
-             
              mesh.checkCollisions =checkCollision
         }
         function addModels(scene, checkCollision)
-            {  
+            {  //COPY THE SAME FORMAT AS BELOW FOR EACH MODEL
                 let pizzaName = 'zaza'
                 BABYLON.SceneLoader.Append(assets_folder, pizzaName+".glb", scene,function (scene) {
-                        checkCollisions(scene,pizzaName,true)
+                        checkCollisions(scene,pizzaName,checkCollision)
+                        addToggleSoundOnMeshClick(scene,pizzaName,'che_la_luna')
                 });
 
             
