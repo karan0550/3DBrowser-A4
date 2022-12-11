@@ -71,6 +71,17 @@
             let addCollision = true;
             addModels(scene, addCollision)
 
+        //Adding of Photodome
+        var dome = new BABYLON.PhotoDome(
+        "rain-forest", // Name of the photoDome
+        "rainforest_trail_4k.jpg",
+        {
+        size: 1000        
+        },
+  );
+  //dome.fovMultiplier = 1; //maximum of 2
+  dome.infiniteDistance = true;
+
             
 
     
