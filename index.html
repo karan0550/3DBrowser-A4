@@ -84,7 +84,7 @@
              */
             var sound = new BABYLON.Sound(fileName,assets_folder+fileName+'.mp3', scene, null, {   
                 loop: true,
-  autoplay: false
+                autoplay: false
         });
        
         return sound
@@ -105,17 +105,7 @@
                 console.log(zaza_sound_playing ? 'Playing' : 'Paused');
             }
             ));
-            // mesh.actionManager = new ActionManager(scene);
-            // mesh.actionManager.registerAction(
-            //     new ExecuteCodeAction(
-            //     ActionManager.OnPickTrigger, function (ev) {
-            //         console.log('sphere clicked', ev);
-            //     }
-            //     )
-            // );
 
-           
-            //sound.play()
         }
         function createCamera(scene, canvas){
                // This creates and positions a free camera (non-mesh)
@@ -142,6 +132,7 @@
                 let pizzaName = 'zaza'
                 BABYLON.SceneLoader.Append(assets_folder, pizzaName+".glb", scene,function (scene) {
                         checkCollisions(scene,pizzaName,checkCollision)
+                        //don't need sound for other models
                         addToggleSoundOnMeshClick(scene,pizzaName,'che_la_luna')
                 });
 
