@@ -39,9 +39,12 @@
     </head>
 <body>
     <canvas id="renderCanvas"></canvas>
-    <script>
-        var canvas = document.getElementById("renderCanvas");
 
+    <script>
+
+      
+        //CREATE GLOBAL VARIABLES
+        var canvas = document.getElementById("renderCanvas");
         var startRenderLoop = function (engine, canvas) {
             engine.runRenderLoop(function () {
                 if (sceneToRender && sceneToRender.activeCamera) {
@@ -49,47 +52,96 @@
                 }
             });
         }
-
         var engine = null;
         var scene = null;
         var sceneToRender = null;
+        var assets_folder ="./assets/"
+        var zaza_sound_playing = false
         var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+        //END OF GLOBAL VARIABLES
+
+        //CREATE 3D WORLD, LOAD MODELS, ETC        
         var createScene = function () {
-    // This creates a basic Babylon Scene object (non-mesh)
-    var scene = new BABYLON.Scene(engine);
+          scene = new BABYLON.Scene(engine);
+          scene.collisionsEnabled = true;
+ 
+            createCamera(scene, canvas);
+            createEnvironment(scene);
 
-    // This creates and positions a free camera (non-mesh)
-    var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
+            let addCollision = true;
+            addModels(scene, addCollision)
 
-    // This targets the camera to scene origin
-    camera.setTarget(BABYLON.Vector3.Zero());
+            
 
-    // This attaches the camera to the canvas
-    camera.attachControl(canvas, true);
-
-    // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-    var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-
-    // Default intensity is 1. Let's dim the light a small amount
-    light.intensity = 0.7;
-
-    // Our built-in 'sphere' shape.
-    // var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2, segments: 32}, scene);
-
-    // Move the sphere upward 1/2 its height
-    // sphere.position.y = 1;
-
-    // Our built-in 'ground' shape.
-    // var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 6, height: 6}, scene);
-
-    BABYLON.SceneLoader.Append("./", "test_animations.glb", scene, function (scene) {
-    // do something with the scene
-});
+    
     return scene;
+    //END OF LOADING 3D ENVIRONMENT
 };
+
+//UTILITY FUNCTIONS I CREATED TO SEPARATE THE CODE
+        function getSound(fileName,scene){
+            /**ASSUMES SOUND FILE IS STORED DIRECTLY IN ROOT OF ASSETS FOLDER
+             */
+            var sound = new BABYLON.Sound(fileName,assets_folder+fileName+'.mp3', scene, null, {   
+                loop: true,
+                autoplay: false
+        });
+       
+        return sound
+        }
+        function addToggleSoundOnMeshClick(scene,meshName,soundFileName){
+            //get mesh
+            sound = getSound(soundFileName,scene);
+            let mesh = scene.getMeshByName(meshName)
+            mesh.actionManager = new BABYLON.ActionManager(scene);
+            mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+            {
+                trigger: BABYLON.ActionManager.OnPickTrigger
+            },
+            () => {
+                BABYLON.Engine.audioEngine.audioContext?.resume();
+                zaza_sound_playing = !zaza_sound_playing;
+                zaza_sound_playing ? sound.play() : sound.pause();
+                console.log(zaza_sound_playing ? 'Playing' : 'Paused');
+            }
+            ));
+
+        }
+        function createCamera(scene, canvas){
+               // This creates and positions a free camera (non-mesh)
+            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);  
+            camera.checkCollisions = true;
+               // This targets the camera to scene origin
+            camera.setTarget(BABYLON.Vector3.Zero());
+            // This attaches the camera to the canvas HTML ELEMENT
+            camera.attachControl(canvas, true);
+        }
+        function createEnvironment(){
+            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+            // Default intensity is 1. Let's dim the light a small amount
+            light.intensity = 0.7;
+
+        }
+        function checkCollisions(scene,name, checkCollision){
+             let mesh = scene.getMeshByName(name)
+             mesh.checkCollisions =checkCollision
+        }
+        function addModels(scene, checkCollision)
+            {  //COPY THE SAME FORMAT AS BELOW FOR EACH MODEL
+                let pizzaName = 'zaza'
+                BABYLON.SceneLoader.Append(assets_folder, pizzaName+".glb", scene,function (scene) {
+                        checkCollisions(scene,pizzaName,checkCollision)
+                        //don't need sound for other models
+                        addToggleSoundOnMeshClick(scene,pizzaName,'che_la_luna')
+                });
+
+            
+        }
+
+
+//START 3D ENGINE, AND ADD AUTO-RESIZING TO ENGINE (FOR DIFFERENT SCREEN SIZE ADJUSTMENTS)
                 window.initFunction = async function() {
-                    
-                    
                     var asyncEngineCreation = async function() {
                         try {
                         return createDefaultEngine();
@@ -98,18 +150,17 @@
                         return createDefaultEngine();
                         }
                     }
-
                     window.engine = await asyncEngineCreation();
         if (!engine) throw 'engine should not be null.';
         startRenderLoop(engine, canvas);
         window.scene = createScene();};
         initFunction().then(() => {sceneToRender = scene                    
         });
-
         // Resize
         window.addEventListener("resize", function () {
             engine.resize();
         });
+////////////////////////////
     </script>
 </body>
 </html>
