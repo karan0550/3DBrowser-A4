@@ -139,21 +139,20 @@
              mesh.checkCollisions =checkCollision
         }
         function addModels(scene, checkCollision)
-            {  //COPY THE SAME FORMAT AS BELOW FOR EACH MODEL
+        {  //COPY THE SAME FORMAT AS BELOW FOR EACH MODEL
                 let pizzaName = 'zaza'
                 BABYLON.SceneLoader.Append(assets_folder, pizzaName+".glb", scene,function (scene) {
                         checkCollisions(scene,pizzaName,checkCollision)
                         //don't need sound for other models
                         addToggleSoundOnMeshClick(scene,pizzaName,'che_la_luna')
+                        })
                 let lumberjack = 'lumberjackAnimated'
                 BABYLON.SceneLoader.Append(assets_folder, lumberjack+".glb", scene,function (scene) {
                         checkCollisions(scene,lumberjack,checkCollision)
                         //don't need sound for other models
-                        addToggleSoundOnMeshClick(scene,lumberjack,'metarig')
+                        //addToggleSoundOnMeshClick(scene,lumberjack,'metarig')
                 });
-
-            
-        }
+    }
 
 
 //START 3D ENGINE, AND ADD AUTO-RESIZING TO ENGINE (FOR DIFFERENT SCREEN SIZE ADJUSTMENTS)
