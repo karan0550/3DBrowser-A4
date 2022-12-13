@@ -145,9 +145,12 @@
                         checkCollisions(scene,pizzaName,checkCollision)
                         //don't need sound for other models
                         addToggleSoundOnMeshClick(scene,pizzaName,'che_la_luna')
+                })
                 let lumberjack = 'lumberjackAnimated'
                 BABYLON.SceneLoader.Append(assets_folder, lumberjack+".glb", scene,function (scene) {
                         checkCollisions(scene,lumberjack,checkCollision)
+                        //don't need sound for other models
+                        addToggleSoundOnMeshClick(scene,lumberjack,'metarig')
                 });
 
             
